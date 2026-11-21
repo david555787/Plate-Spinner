@@ -64,3 +64,44 @@ The assistant reported building the Spin, Restaurants, and History tabs for Expo
 `pwd` returned `/Users/jessielu/Plate Spinner`. The assistant confirmed the two placeholders, replaced them, and created 15 source files. The final `ls -R src` listing showed all three screens in `src/app/`, the tab configuration in `src/components/app-tabs.tsx`, and the storage logic in `src/data/store.ts`.
 
 Lint, TypeScript, and the iOS, Android, and web exports passed. Browser tests showed that a spin stopped on the displayed restaurant, rapid taps logged only one meal, and saved entries survived a reload. Testing on a physical phone remained pending.
+
+## 6. Fixing wheel labels and History button spacing
+
+**Prompt**
+
+> Read REVIEW.md in this project. Fix only these two findings, and nothing else:
+>
+> - Finding 20: with 12 restaurants, a wide valid name such as "mmmmmmmmmm" can extend past its slice and the wheel rim. Make every wheel label stay inside its slice in both light and dark mode. Keep the SPEC.md rule of showing at most 10 characters per label (first 9 plus "…" for longer names), and keep the full name everywhere else.
+> - Finding 27: the Breakfast, Lunch, and Dinner buttons on the History screen use a gap of 3, but SPEC.md section 6 requires 8 points between related controls. Change it to 8.
+>
+> Do not edit SPEC.md or REVIEW.md. Do not refactor or change any other behavior. When you are done, run npx tsc --noEmit and npx expo lint, then list every file you changed and what you changed in each.
+
+**Response summary**
+
+The assistant updated `src/components/restaurant-wheel.tsx` to fit each label inside its slice. Labels longer than 10 characters still show the first 9 plus `…`, and Restaurants, spin results, and History keep the full name. In `src/app/history.tsx`, the gap between the three meal buttons changed from 3 to 8 points.
+
+`npx tsc --noEmit` and `npx expo lint` both passed. Browser tests verified that `mmmmmmmmmm` fit in all 12 positions and that both History gaps measured 8 points in light and dark mode. Native visual verification remained pending because an Expo Go device was unavailable.
+
+## 7. Reviewing Plate Spinner against SPEC.md
+
+**Prompt**
+
+> Review the React Native/Expo code in this project against the spec in SPEC.md.
+> For each acceptance criterion in the spec, verify whether the code actually implements it correctly.
+> Also check for:
+>
+> - Bugs or logic errors
+> - Missing error handling
+> - Code quality issues (unclear naming, repeated code, etc.)
+> - Best practices for React Native or other technologies
+>
+> Format your review as a numbered list of findings, each marked as [PASS], [FAIL], or [WARN].
+> Be specific. Reference file names and line numbers.
+> Do not fix anything in this session. Report only.
+> Export the review as REVIEW.md at the root of the project.
+
+**Response summary**
+
+The assistant wrote 32 numbered findings to `REVIEW.md` at revision `fe5f288`, before the fixes recorded in entry 6. Of the 20 acceptance criteria, 15 passed, one failed, and four received warnings. The failed criterion concerned a wide label extending past the wheel rim with 12 restaurants. The review also found that a slow deletion could leave time to log the old winner and that two browser tabs could overwrite a saved meal.
+
+Lint and TypeScript checks passed. Spin timing, persistence after fully closing Expo Go, and appearance on a phone remained unverified because an Expo Go device was unavailable.

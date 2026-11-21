@@ -1,56 +1,36 @@
-# Welcome to your Expo app 👋
+# Plate Spinner
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Plate Spinner helps you decide where to eat. Spin the wheel to pick a restaurant from your list, then save the pick as breakfast, lunch, or dinner. You can also log what you ate by hand. The app runs on iOS, Android, and the web and stores your restaurants and meal history locally.
 
-## Get started
+## Using the app
 
-1. Install dependencies
+- **Spin** — The wheel starts with four sample restaurants. Tap **Spin** to pick one at random. Each restaurant has an equal chance. If you go there for lunch, tap **Log as Lunch** to save the pick to today’s history.
+- **Restaurants** — Use **Add** and **Delete** to manage up to 12 restaurants. The wheel needs at least two to spin. Past meal entries keep the restaurant’s name even after you remove it from the wheel.
+- **History** — Browse meals by date, newest first, or add an entry yourself. To log last night’s dinner, tap **Previous Day**, choose **Dinner**, enter what you ate, and tap **Save**. You can delete individual entries here.
 
-   ```bash
-   npm install
-   ```
+## Run locally
 
-2. Start the app
+The project uses Expo SDK 58 and npm. With Node.js 24 LTS (24.3.0 or later in the 24.x series), run these commands from the project root to install the locked dependencies and start the development server.
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+npm ci
+npx expo start --go
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+To try the app on a phone, install a version of Expo Go that supports SDK 58 and connect the phone and computer to the same Wi-Fi network.
 
-### Other setup steps
+- **Android** — Scan the QR code in the terminal with Expo Go.
+- **iPhone** — Run `npx expo login` on your computer, sign in to the same account in Expo Go, then scan the QR code with the Camera app. [Expo device setup guide](https://docs.expo.dev/get-started/start-developing/)
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+For a browser preview, press `w` in the terminal. If you have a simulator or emulator configured, press `i` for iOS or `a` for Android.
 
-## Learn more
+## Development
 
-To learn more about developing your project with Expo, look at the following resources:
+The app uses TypeScript and Expo Router. The three screens live in [src/app/](src/app/). The [wheel component](src/components/restaurant-wheel.tsx) draws the slices with `react-native-svg`. The [data layer](src/data/) defines restaurants and meal entries and persists them with AsyncStorage. See the [project specification](SPEC.md) for detailed behavior.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Add dependencies with `npx expo install <package>`. Run the linter and type checker before committing changes.
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```sh
+npm run lint
+npx tsc --noEmit
+```

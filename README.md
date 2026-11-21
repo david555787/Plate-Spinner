@@ -1,36 +1,57 @@
 # Plate Spinner
 
-Plate Spinner helps you decide where to eat. Spin the wheel to pick a restaurant from your list, then save the pick as breakfast, lunch, or dinner. You can also log what you ate by hand. The app runs on iOS, Android, and the web and stores your restaurants and meal history locally.
+## About
 
-## Using the app
+Plate Spinner picks a restaurant from my list and lets me keep track of what I ate. I chose this idea because I often know which places I like and still get stuck deciding where to go for lunch.
 
-- **Spin** — The wheel starts with four sample restaurants. Tap **Spin** to pick one at random. Each restaurant has an equal chance. If you go there for lunch, tap **Log as Lunch** to save the pick to today’s history.
-- **Restaurants** — Use **Add** and **Delete** to manage up to 12 restaurants. The wheel needs at least two to spin. Past meal entries keep the restaurant’s name even after you remove it from the wheel.
-- **History** — Browse meals by date, newest first, or add an entry yourself. To log last night’s dinner, tap **Previous Day**, choose **Dinner**, enter what you ate, and tap **Save**. You can delete individual entries here.
+## Screens
 
-## Run locally
+### Spin
 
-The project uses Expo SDK 58 and npm. With Node.js 24 LTS (24.3.0 or later in the 24.x series), run these commands from the project root to install the locked dependencies and start the development server.
+Tap **Spin** to pick a restaurant at random. Each restaurant has an equal chance, and the wheel stops with the chosen restaurant under the pointer. To save the pick, tap **Log as Breakfast**, **Log as Lunch**, or **Log as Dinner**. Each spin can be logged once for the current day.
 
-```sh
-npm ci
-npx expo start --go
-```
+### Restaurants
 
-To try the app on a phone, install a version of Expo Go that supports SDK 58 and connect the phone and computer to the same Wi-Fi network.
+The list starts with four sample restaurants. Add your favorite places or delete ones you no longer visit. The list holds up to 12 restaurants, and the wheel needs at least two to spin. Past meal entries keep the restaurant’s name even after you remove it from the list.
 
-- **Android** — Scan the QR code in the terminal with Expo Go.
-- **iPhone** — Run `npx expo login` on your computer, sign in to the same account in Expo Go, then scan the QR code with the Camera app. [Expo device setup guide](https://docs.expo.dev/get-started/start-developing/)
+### History
 
-For a browser preview, press `w` in the terminal. If you have a simulator or emulator configured, press `i` for iOS or `a` for Android.
+Meals appear by date, newest first, with breakfast, lunch, and dinner grouped under each day. You can also enter a meal by hand. For example, to log last night’s dinner, tap **Previous Day**, choose **Dinner**, type what you ate, and tap **Save**. Use **Delete** to remove an individual entry.
 
-## Development
+## Setup and Run
 
-The app uses TypeScript and Expo Router. The three screens live in [src/app/](src/app/). The [wheel component](src/components/restaurant-wheel.tsx) draws the slices with `react-native-svg`. The [data layer](src/data/) defines restaurants and meal entries and persists them with AsyncStorage. See the [project specification](SPEC.md) for detailed behavior.
+Plate Spinner uses Expo SDK 58.0.26 with Expo Router and TypeScript. Use Node.js 22.13 or newer (I used v26.8.2). I tested on my own iPhone with Expo Go for SDK 58.
 
-Add dependencies with `npx expo install <package>`. Run the linter and type checker before committing changes.
+1. Open a terminal at the root of your existing clone and run `npm install` to install the project's dependencies.
+2. Run `npx expo login` on your computer and sign in to the same Expo account in Expo Go on your iPhone.
+3. Start the development server with `npx expo start`.
+4. Connect your iPhone and computer to the same Wi-Fi network. Scan the terminal's QR code with the iPhone Camera app and tap the link to open Plate Spinner in Expo Go.
 
-```sh
-npm run lint
-npx tsc --noEmit
-```
+If the phone cannot connect over Wi-Fi, restart the server with `npx expo start --tunnel` and scan the new QR code.
+
+To add a new package, run `npx expo install <package>` from the project root.
+
+Data (restaurants and meal history) is stored locally on the device with AsyncStorage.
+
+## Something That Surprised Me
+
+I thought a ten-character limit would be enough to keep a restaurant name inside its slice. With 12 restaurants on the wheel, ten lowercase m’s can spill over the edge even when ten lowercase i’s fit easily. That’s why the wheel now scales each label to fit the space inside its slice.
+
+## Response to the AI Review
+
+[REVIEW.md](REVIEW.md) is the unedited output of a second Codex session.
+
+**Fixed:** Finding 20 (wheel labels overflowing slices), 27 (History button spacing), 28 and 29 (README setup instructions).
+
+**Not fixed, and why:**
+
+- **Finding 10** — If deleting a restaurant takes long enough, I can still tap a meal button and log the old result before the deletion finishes. I expect that window to be short on my phone, and the wheel updates as soon as the deletion is saved.
+- **Finding 21** — Edits can overwrite each other when two browser tabs have the app open at once. On my iPhone, I use a single instance of the app, so there’s no second tab writing to the same list.
+- **Finding 22** — If the saved JSON for either list is damaged, the app also blocks access to the other list. The app writes valid JSON during normal use, so I deferred recovery from cases such as a manual storage edit or an interrupted write.
+- **Finding 23** — The Restaurants form already rejects duplicate names and a thirteenth restaurant. Since a user can’t create either case through the app, I left the startup checks as they are.
+- **Finding 24** — History can lose an unsaved entry if the window crosses the 780-point layout breakpoint. This can happen in a resizable window. The iPhone app is locked to portrait in `app.json`, so turning the phone doesn’t trigger that layout change.
+- **Finding 25** — A name with a combining accent or a multi-part emoji can be shortened in an awkward place on the wheel. The full name still appears in the restaurant list and the spin result, so I left this display issue for later.
+- **Finding 26** — History renders all entries for one day together, which could slow down a day with hundreds of entries. I expect to log only a few meals a day, so I kept the simpler layout.
+- **Finding 32** — Spin and History each define the save confirmation text, and both match the wording in the spec. I left the duplication in place because a refactor could introduce a wording error in a message that already works.
+
+**I verified Findings 2, 17, and 18 on my phone.** I checked the spin timing and pointer, confirmed that my data survived closing and reopening Expo Go, and verified that an empty restaurant list stayed empty after a restart.

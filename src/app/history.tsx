@@ -142,7 +142,7 @@ const history = StyleSheet.create({
   list: { width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16,
     paddingBottom: 90, gap: 14 },
   dateButton: { flex: 1, paddingHorizontal: 6, alignSelf: 'stretch' },
-  selector: { flexDirection: 'row', padding: 4, borderRadius: 12, gap: 3 },
+  selector: { flexDirection: 'row', padding: 4, borderRadius: 12, gap: 8 },
   choice: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center', gap: 3,
     borderRadius: 8, paddingHorizontal: 2, paddingVertical: 7, minHeight: 48 },
 });

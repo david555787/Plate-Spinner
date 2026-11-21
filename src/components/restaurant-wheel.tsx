@@ -1,6 +1,6 @@
-import { Fragment, useId } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
-import Svg, { Circle, Defs, G, Path, Pattern, Rect, Text as SvgText } from 'react-native-svg';
+import { Fragment, useId, useState } from 'react';
+import { Animated, Platform, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, Defs, ForeignObject, G, Path, Pattern, Rect } from 'react-native-svg';
 
 import { type Restaurant } from '@/data/model';
 import { useTheme } from '@/hooks/use-theme';
@@ -35,18 +35,36 @@ function Slice({ name, index, count }: { name: string; index: number; count: num
   const label = chars.length > 10 ? chars.slice(0, 9).join('') + '…' : name;
   const direction = count < 3 ? 0 : count <= 4 ? mid + 90 : mid;
   const tilt = ((direction + 270) % 180) - 90;
-  // Wide glyphs take up more of a slice. Keep both ends clear of the rim and hub.
+  // These centered boxes clear the rim on a half-disc and the sides of a 30° slice.
+  const labelWidth = count <= 4 ? 120 : 94;
+  const labelHeight = count <= 4 ? 28 : 20;
   const ems = Array.from(label).reduce((width, ch) =>
     width + (/[^\x20-\x7e]|[MW@%]/.test(ch) ? 1.1 : /[ijl I.]/.test(ch) ? 0.38 : 0.72), 0);
   const fontSize = Math.min(count <= 4 ? 18 : 15.5, (count <= 4 ? 122 : 94) / ems);
+  // The browser reports the unwrapped line size. Native text fits itself to the
+  // box at 4x scale so even the native 4-point font floor fits very wide glyphs.
+  const [webLine, setWebLine] = useState({ width: 0, height: 0 });
+  const isWeb = Platform.OS === 'web';
+  const textScale = isWeb ? 1 : 4;
+  const width = Math.max(labelWidth * textScale, webLine.width + 2);
+  const height = Math.max(labelHeight * textScale, webLine.height + 2);
+  const scale = Math.min(labelWidth / width, labelHeight / height);
   const fill = index % 2 === 0 ? c.terracotta : c.sage;
   return <Fragment>
     {count === 1 ? <Circle r={radius} fill={fill} stroke={c.wheelLine} /> :
       <Path d={`M0 0L${a.x} ${a.y}A${radius} ${radius} 0 0 1 ${b.x} ${b.y}Z`}
         fill={fill} stroke={c.wheelLine} strokeWidth={1.15} />}
-    <G transform={`translate(${pos.x} ${pos.y}) rotate(${tilt})`}>
-      <SvgText x={0} y={fontSize * 0.34} textAnchor="middle" fontSize={fontSize}
-        fontWeight="600" fill={c.text}>{label}</SvgText>
+    <G transform={`translate(${pos.x} ${pos.y}) rotate(${tilt}) scale(${scale})`}>
+      <ForeignObject x={-width / 2} y={-height / 2} width={width} height={height}>
+        <View collapsable={false} style={{ width, height, flexDirection: 'row',
+          alignItems: 'center', justifyContent: 'center' }}>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.01} allowFontScaling={false}
+            onLayout={isWeb ? ({ nativeEvent: { layout } }) =>
+              setWebLine({ width: layout.width, height: layout.height }) : undefined}
+            style={{ width: isWeb ? undefined : width, maxWidth: isWeb ? 'none' : undefined,
+              flexShrink: 0, textAlign: 'center', fontSize: fontSize * textScale, fontWeight: '600', color: c.text }}>{label}</Text>
+        </View>
+      </ForeignObject>
     </G>
   </Fragment>;
 }
